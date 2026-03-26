@@ -1,0 +1,930 @@
+﻿<!DOCTYPE html>
+
+
+
+<html lang="zh-CN">
+
+
+
+<head>
+
+
+
+    <meta charset="UTF-8" />
+
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+
+    <title>Controller Desktop 配置站</title>
+
+
+
+    <link rel="stylesheet" href="/app.css" />
+
+
+
+</head>
+
+
+
+<body>
+
+
+
+    <div class="shell-grid">
+
+
+
+        <aside class="left-rail surface reveal-slide">
+
+
+
+            <div>
+
+
+
+                <p class="eyebrow">Controller Desktop</p>
+
+
+
+                <h1>本地绑键配置站</h1>
+
+
+
+                <p class="muted">应用只负责运行时逻辑，所有绑定编辑都在这个本地网页完成。</p>
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <section class="rail-block">
+
+
+
+                <div class="block-heading">
+
+
+
+                    <span>当前来源</span>
+
+
+
+                    <strong id="sourceBadge" class="status-chip status-chip-accent">应用配置</strong>
+
+
+
+                </div>
+
+
+
+                <p id="configPath" class="mono subtle-wrap">等待载入本地配置路径</p>
+
+
+
+                <div class="action-row compact">
+
+
+
+                    <button id="reloadButton" class="button-secondary">重新读取应用配置</button>
+
+
+
+                    <button id="importButton" class="button-ghost">导入本地 JSON</button>
+
+
+
+                    <input id="fileInput" type="file" accept="application/json,.json" hidden />
+
+
+
+                </div>
+
+
+
+            </section>
+
+
+
+
+
+
+
+            <section class="rail-block">
+
+
+
+                <div class="block-heading">
+
+
+
+                    <span>运行时状态</span>
+
+
+
+                    <strong id="runtimeState" class="status-chip">连接检查中</strong>
+
+
+
+                </div>
+
+
+
+                <dl class="status-list">
+
+
+
+                    <div>
+
+
+
+                        <dt>前台进程</dt>
+
+
+
+                        <dd id="foregroundProcess">-</dd>
+
+
+
+                    </div>
+
+
+
+                    <div>
+
+
+
+                        <dt>最近动作</dt>
+
+
+
+                        <dd id="recentAction">-</dd>
+
+
+
+                    </div>
+
+
+
+                    <div>
+
+
+
+                        <dt>控制器</dt>
+
+
+
+                        <dd id="controllerState">-</dd>
+
+
+
+                    </div>
+
+
+
+                </dl>
+
+
+
+            </section>
+
+
+
+
+
+
+
+            <section class="rail-block minimal-gap">
+
+
+
+                <div class="block-heading">
+
+
+
+                    <span>应用行为</span>
+
+
+
+                    <strong id="dirtyState" class="status-chip status-chip-muted">未修改</strong>
+
+
+
+                </div>
+
+
+
+                <label class="toggle-row">
+
+
+
+                    <span>启用桌面映射</span>
+
+
+
+                    <input id="runtimeEnabledToggle" type="checkbox" />
+
+
+
+                </label>
+
+
+
+                <label class="toggle-row">
+
+
+
+                    <span>开机自动启动</span>
+
+
+
+                    <input id="autostartToggle" type="checkbox" />
+
+
+
+                </label>
+
+
+
+            </section>
+
+
+
+        </aside>
+
+
+
+
+
+
+
+        <main class="workspace reveal-rise">
+
+
+
+            <section class="hero-band">
+
+
+
+                <div>
+
+
+
+                    <p class="eyebrow">规则工作台</p>
+
+
+
+                    <h2 id="profileTitle">配置 1</h2>
+
+
+
+                    <p class="muted">优先维护输入到动作的关系，不再维护桌面应用界面本身。</p>
+
+
+
+                </div>
+
+
+
+                <div class="hero-actions">
+
+
+
+                    <button id="saveAppButton" class="button-primary">保存到应用本地配置</button>
+
+
+
+                    <button id="exportButton" class="button-secondary">导出 JSON</button>
+
+
+
+                </div>
+
+
+
+            </section>
+
+
+
+
+
+
+
+            <section class="workspace-grid">
+
+
+
+                <div class="rule-panel surface">
+
+
+
+                    <div class="panel-header">
+
+
+
+                        <div>
+
+
+
+                            <p class="panel-title">规则列表</p>
+
+
+
+                            <p class="panel-subtitle">选择一条规则后在右侧编辑。</p>
+
+
+
+                        </div>
+
+
+
+                        <div class="action-row compact">
+
+
+
+                            <button id="applyDesktopMousePresetButton" class="button-secondary">应用桌面鼠标预设</button>
+
+                            <button id="addRuleButton" class="button-secondary">新增规则</button>
+
+
+
+                            <button id="deleteRuleButton" class="button-ghost">删除规则</button>
+
+
+
+                        </div>
+
+
+
+                    </div>
+
+
+
+                    <div class="profile-meta">
+
+
+
+                        <label>
+
+
+
+                            <span>配置名称</span>
+
+
+
+                            <input id="profileNameInput" type="text" maxlength="40" />
+
+
+
+                        </label>
+
+
+
+                        <label>
+
+
+
+                            <span>控制器槽位</span>
+
+
+
+                            <select id="controllerSlotSelect">
+
+
+
+                                <option value="0">控制器 1</option>
+
+
+
+                                <option value="1">控制器 2</option>
+
+
+
+                                <option value="2">控制器 3</option>
+
+
+
+                                <option value="3">控制器 4</option>
+
+
+
+                            </select>
+
+
+
+                        </label>
+
+
+
+                    </div>
+
+
+
+                    <div id="ruleList" class="rule-list"></div>
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="editor-panel surface">
+
+
+
+                    <div class="panel-header">
+
+
+
+                        <div>
+
+
+
+                            <p class="panel-title">规则编辑</p>
+
+
+
+                            <p class="panel-subtitle">支持单击、双击、长按、持续。键盘、组合键、鼠标按钮和滚轮录制都由本机原生监听完成。</p>
+
+
+
+                        </div>
+
+
+
+                        <div id="editorHint" class="status-chip status-chip-muted">选择规则后开始编辑</div>
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <form id="ruleForm" class="editor-form">
+
+
+
+                        <label>
+
+
+
+                            <span>规则名称</span>
+
+
+
+                            <input id="displayNameInput" type="text" maxlength="32" />
+
+
+
+                        </label>
+
+
+
+
+
+
+
+                        <div class="two-col">
+
+
+
+                            <label>
+
+
+
+                                <span>输入控件</span>
+
+
+
+                                <select id="controlSelect"></select>
+
+
+
+                            </label>
+
+
+
+                            <label>
+
+
+
+                                <span>触发模式</span>
+
+
+
+                                <select id="triggerModeSelect"></select>
+
+
+
+                            </label>
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <div class="trigger-palette">
+
+
+
+                            <button type="button" data-behavior="SinglePress">单击</button>
+
+
+
+                            <button type="button" data-behavior="DoublePress">双击</button>
+
+
+
+                            <button type="button" data-behavior="LongPress">长按</button>
+
+
+
+                            <button type="button" data-behavior="Hold">持续</button>
+
+
+
+                        </div>
+
+
+
+                        <div id="behaviorDescription" class="behavior-note"></div>
+
+
+
+
+
+
+
+                        <div class="two-col">
+
+
+
+                            <label>
+
+
+
+                                <span>重复方式</span>
+
+
+
+                                <select id="repeatModeSelect"></select>
+
+
+
+                            </label>
+
+
+
+                            <label>
+
+
+
+                                <span>触发阈值</span>
+
+
+
+                                <input id="thresholdInput" type="number" step="0.01" min="0" max="1" />
+
+
+
+                            </label>
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <div class="two-col">
+
+
+
+                            <label>
+
+
+
+                                <span>动作类型</span>
+
+
+
+                                <select id="actionTypeSelect"></select>
+
+
+
+                            </label>
+
+
+
+                            <label id="parameterRow">
+
+
+
+                                <span>动作参数</span>
+
+
+
+                                <input id="parameterInput" type="text" maxlength="64" placeholder="可手填，也可点击下方开始录制" />
+
+
+
+                            </label>
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <label id="systemActionRow" class="hidden">
+
+
+
+                            <span>系统动作</span>
+
+
+
+                            <select id="systemActionSelect"></select>
+
+
+
+                        </label>
+
+
+
+
+
+
+
+                        <div id="captureStrip" class="capture-strip">
+
+
+
+                            <div class="capture-actions">
+
+
+
+                                <button id="captureButton" type="button" class="button-secondary">开始录制</button>
+
+
+
+                                <button id="clearParameterButton" type="button" class="button-ghost">清空参数</button>
+
+
+
+                            </div>
+
+
+
+                            <p id="captureHint" class="capture-hint">点击“开始录制”后，可直接按键盘单键、组合键、鼠标左中右键，或滚动鼠标滚轮。录制期间网页不会抢先处理 Ctrl+F4 这类组合键。</p>
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <div class="two-col">
+
+
+
+                            <label>
+
+
+
+                                <span>灵敏度</span>
+
+
+
+                                <input id="sensitivityInput" type="number" step="0.05" min="-10" max="10" />
+
+
+
+                            </label>
+
+
+
+                            <label class="toggle-row editor-toggle">
+
+
+
+                                <span>启用此规则</span>
+
+
+
+                                <input id="ruleEnabledToggle" type="checkbox" />
+
+
+
+                            </label>
+
+
+
+                        </div>
+
+
+
+                    </form>
+
+
+
+                </div>
+
+
+
+            </section>
+
+
+
+        </main>
+
+
+
+
+
+
+
+        <aside class="right-rail surface reveal-slide">
+
+
+
+            <section>
+
+
+
+                <p class="panel-title">当前映射摘要</p>
+
+
+
+                <p class="panel-subtitle">用于快速确认 ABXY、方向键、右摇杆上下等基础键位。</p>
+
+
+
+            </section>
+
+
+
+            <div id="mappingSummary" class="summary-list"></div>
+
+
+
+
+
+
+
+            <section class="cursor-section">
+
+
+
+                <div class="block-heading">
+
+
+
+                    <span>光标参数</span>
+
+
+
+                    <strong class="status-chip status-chip-muted">左摇杆 / 滚轮</strong>
+
+
+
+                </div>
+
+
+
+                <div class="slider-group">
+
+
+
+                    <label>
+
+
+
+                        <span>基础速度</span>
+
+
+
+                        <input id="baseSpeedInput" type="number" step="1" min="1" max="80" />
+
+
+
+                    </label>
+
+
+
+                    <label>
+
+
+
+                        <span>加速度</span>
+
+
+
+                        <input id="accelerationInput" type="number" step="0.05" min="0.2" max="4" />
+
+
+
+                    </label>
+
+
+
+                    <label>
+
+
+
+                        <span>滚轮步长</span>
+
+
+
+                        <input id="scrollStepInput" type="number" step="10" min="10" max="600" />
+
+
+
+                    </label>
+
+
+
+                    <label>
+
+
+
+                        <span>死区</span>
+
+
+
+                        <input id="deadZoneInput" type="number" step="0.01" min="0" max="1" />
+
+
+
+                    </label>
+
+
+
+                </div>
+
+
+
+            </section>
+
+
+
+        </aside>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <div id="toast" class="toast"></div>
+
+
+
+    <script src="/app.js"></script>
+
+
+
+</body>
+
+
+
+</html>
+
+
+

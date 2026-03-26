@@ -1,0 +1,11 @@
+﻿.dotnet/
+.nuget/
+.localappdata/
+.appdata/
+.vs/
+**/bin/
+**/obj/
+dist/
+*.user
+*.suo
+tmp_fix_services.ps1

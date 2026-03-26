@@ -1,0 +1,347 @@
+﻿<Window x:Class="ControllerDesktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:ControllerDesktop.Models"
+        mc:Ignorable="d"
+        Title="桌面映射台"
+        Width="1540"
+        Height="960"
+        MinWidth="1280"
+        MinHeight="820"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}">
+            <Grid Margin="18">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="映射空间站" FontSize="28" FontWeight="SemiBold" FontFamily="Segoe UI Variable Display" />
+                    <TextBlock Text="桌面键位方案" Margin="0,6,0,0" Foreground="{StaticResource SubtleTextBrush}" />
+                </StackPanel>
+
+                <Border Grid.Row="1" Style="{StaticResource SidebarSectionStyle}" Margin="0,18,0,14">
+                    <StackPanel>
+                        <TextBlock Text="当前设备" Foreground="{StaticResource SubtleTextBrush}" />
+                        <TextBlock Text="XInput 控制器" Margin="0,10,0,0" FontSize="22" FontWeight="SemiBold" />
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Ellipse Width="10" Height="10" Fill="{StaticResource SuccessBrush}" Margin="0,3,8,0" />
+                            <TextBlock Text="{Binding ControllerText}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource SidebarSectionStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="配置列表" FontSize="20" FontWeight="SemiBold" />
+
+                        <Border Grid.Row="1" Style="{StaticResource ProfileItemBorderStyle}" Margin="0,14,0,10" BorderBrush="{StaticResource AccentBrush}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Profile.Name}" FontSize="18" FontWeight="SemiBold" />
+                                    <TextBlock Text="当前正在编辑" Foreground="{StaticResource SubtleTextBrush}" Margin="0,6,0,0" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="已选中" Foreground="{StaticResource AccentCoolBrush}" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <TextBlock Grid.Row="2" Text="后续可以扩展多套方案。当前版本默认维护一套桌面配置。" Foreground="{StaticResource SubtleTextBrush}" TextWrapping="Wrap" />
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="3" Style="{StaticResource SidebarSectionStyle}" Margin="0,14,0,14">
+                    <StackPanel>
+                        <TextBlock Text="状态摘要" FontSize="20" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding RuntimeHeadline}" Margin="0,14,0,0" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding RuntimeSubhead}" Margin="0,8,0,0" Foreground="{StaticResource SubtleTextBrush}" TextWrapping="Wrap" />
+                        <TextBlock Text="前台进程" Margin="0,16,0,0" Foreground="{StaticResource SubtleTextBrush}" />
+                        <TextBlock Text="{Binding ForegroundProcess}" Margin="0,6,0,0" />
+                        <TextBlock Text="最近动作" Margin="0,12,0,0" Foreground="{StaticResource SubtleTextBrush}" />
+                        <TextBlock Text="{Binding RecentAction}" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="4" Style="{StaticResource SidebarSectionStyle}" Margin="0,0,0,0">
+                    <StackPanel>
+                        <CheckBox Content="启用桌面映射" IsChecked="{Binding RuntimeEnabled, Mode=TwoWay}" Click="RuntimeToggle_Click" />
+                        <CheckBox Content="开机自动启动" IsChecked="{Binding StartWithWindows, Mode=TwoWay}" Click="AutoStartToggle_Click" />
+                        <CheckBox Content="启动后隐藏到托盘" IsChecked="{Binding StartHidden, Mode=TwoWay}" Click="StartHiddenToggle_Click" />
+                        <CheckBox Content="关闭窗口隐藏到托盘" IsChecked="{Binding CloseToTray, Mode=TwoWay}" Click="CloseToTrayToggle_Click" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="22">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="按键映射" FontSize="30" FontWeight="SemiBold" FontFamily="Segoe UI Variable Display" />
+                    <TextBlock Text="点击舞台上的按键节点即可切换当前编辑目标。页面风格参考你给的桌面驱动面板，但这里用的是纯节点图，不是具体手柄图片。"
+                               Margin="0,8,0,0"
+                               Foreground="{StaticResource SubtleTextBrush}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+
+                <Border Grid.Column="1" Background="#35373C" CornerRadius="16" BorderBrush="#25FFFFFF" BorderThickness="1" Padding="16,10" Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="测试中" FontSize="16" />
+                </Border>
+                <Button Grid.Column="2" Content="保存配置" Click="SaveButton_Click" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </Grid>
+
+            <Border Grid.Row="1" Style="{StaticResource MainSectionStyle}" Margin="0,18,0,18">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="按键舞台" FontSize="24" FontWeight="SemiBold" />
+                        <TextBlock Text="支持基础按钮、方向键、扳机、肩键以及右摇杆上下。选中节点后，下方立即进入改键状态。"
+                                   Margin="0,8,0,0"
+                                   Foreground="{StaticResource SubtleTextBrush}" />
+                    </StackPanel>
+
+                    <WrapPanel Grid.Row="1" Margin="0,16,0,0">
+                        <Border Background="#3A2D4A" BorderBrush="#7152B8" BorderThickness="1" CornerRadius="16" Padding="12,8" Margin="0,0,12,12">
+                            <TextBlock Text="当前节点" Foreground="{StaticResource SubtleTextBrush}" />
+                        </Border>
+                        <Border Background="#312B36" BorderBrush="#25FFFFFF" BorderThickness="1" CornerRadius="16" Padding="12,8" Margin="0,0,12,12">
+                            <TextBlock Text="{Binding SelectedControlLabel}" FontWeight="SemiBold" />
+                        </Border>
+                        <Border Background="#312B36" BorderBrush="#25FFFFFF" BorderThickness="1" CornerRadius="16" Padding="12,8" Margin="0,0,12,12">
+                            <TextBlock Text="支持单击 / 双击 / 长按 / 持续" />
+                        </Border>
+                    </WrapPanel>
+
+                    <Grid Grid.Row="2" Margin="0,16,0,0">
+                        <Grid.Background>
+                            <RadialGradientBrush RadiusX="0.9" RadiusY="0.8">
+                                <GradientStop Color="#4B395C" Offset="0" />
+                                <GradientStop Color="#2C2D31" Offset="0.6" />
+                                <GradientStop Color="#2A2B2F" Offset="1" />
+                            </RadialGradientBrush>
+                        </Grid.Background>
+
+                        <Canvas x:Name="StageCanvas" Height="420">
+                            <Border Width="430" Height="250" CornerRadius="120" Background="#2A2B31" BorderBrush="#35FFFFFF" BorderThickness="1" Canvas.Left="300" Canvas.Top="90">
+                                <Grid>
+                                    <TextBlock Text="点击节点开始改键" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource SubtleTextBrush}" FontSize="24" />
+                                </Grid>
+                            </Border>
+
+                            <Button x:Name="NodeLT" Style="{StaticResource StageNodeButtonStyle}" Content="LT" Width="72" Height="56" Canvas.Left="260" Canvas.Top="24" Tag="LeftTrigger|AxisPositive|LT" Click="StageNode_Click" />
+                            <Button x:Name="NodeLB" Style="{StaticResource StageNodeButtonStyle}" Content="LB" Width="92" Height="56" Canvas.Left="244" Canvas.Top="92" Tag="LeftShoulder|Button|LB" Click="StageNode_Click" />
+                            <Button x:Name="NodeBack" Style="{StaticResource StageNodeButtonStyle}" Content="返回" Width="90" Height="46" Canvas.Left="470" Canvas.Top="38" Tag="Back|Button|返回键" Click="StageNode_Click" />
+                            <Button x:Name="NodeStart" Style="{StaticResource StageNodeButtonStyle}" Content="开始" Width="90" Height="46" Canvas.Left="590" Canvas.Top="38" Tag="Start|Button|开始键" Click="StageNode_Click" />
+                            <Button x:Name="NodeRT" Style="{StaticResource StageNodeButtonStyle}" Content="RT" Width="72" Height="56" Canvas.Left="800" Canvas.Top="24" Tag="RightTrigger|AxisPositive|RT" Click="StageNode_Click" />
+                            <Button x:Name="NodeRB" Style="{StaticResource StageNodeButtonStyle}" Content="RB" Width="92" Height="56" Canvas.Left="776" Canvas.Top="92" Tag="RightShoulder|Button|RB" Click="StageNode_Click" />
+
+                            <Button x:Name="NodeDPadUp" Style="{StaticResource StageNodeButtonStyle}" Content="↑" Width="58" Height="58" Canvas.Left="416" Canvas.Top="180" Tag="DPadUp|Button|方向键上" Click="StageNode_Click" />
+                            <Button x:Name="NodeDPadLeft" Style="{StaticResource StageNodeButtonStyle}" Content="←" Width="58" Height="58" Canvas.Left="354" Canvas.Top="242" Tag="DPadLeft|Button|方向键左" Click="StageNode_Click" />
+                            <Button x:Name="NodeDPadDown" Style="{StaticResource StageNodeButtonStyle}" Content="↓" Width="58" Height="58" Canvas.Left="416" Canvas.Top="242" Tag="DPadDown|Button|方向键下" Click="StageNode_Click" />
+                            <Button x:Name="NodeDPadRight" Style="{StaticResource StageNodeButtonStyle}" Content="→" Width="58" Height="58" Canvas.Left="478" Canvas.Top="242" Tag="DPadRight|Button|方向键右" Click="StageNode_Click" />
+
+                            <Button x:Name="NodeLS" Style="{StaticResource StageNodeButtonStyle}" Content="LS" Width="70" Height="70" Canvas.Left="330" Canvas.Top="170" Tag="LeftStickX|AxisPositive|左摇杆" Click="StageNode_Click" />
+                            <Button x:Name="NodeRS" Style="{StaticResource StageNodeButtonStyle}" Content="RS" Width="70" Height="70" Canvas.Left="610" Canvas.Top="210" Tag="RightStickX|AxisPositive|右摇杆" Click="StageNode_Click" />
+                            <Button x:Name="NodeRSUp" Style="{StaticResource StageNodeButtonStyle}" Content="RS↑" Width="74" Height="50" Canvas.Left="700" Canvas.Top="188" Tag="RightStickY|AxisPositive|右摇杆上" Click="StageNode_Click" />
+                            <Button x:Name="NodeRSDown" Style="{StaticResource StageNodeButtonStyle}" Content="RS↓" Width="74" Height="50" Canvas.Left="700" Canvas.Top="246" Tag="RightStickY|AxisNegative|右摇杆下" Click="StageNode_Click" />
+
+                            <Button x:Name="NodeY" Style="{StaticResource StageNodeButtonStyle}" Content="Y" Width="58" Height="58" Canvas.Left="760" Canvas.Top="146" Tag="Y|Button|Y 键" Click="StageNode_Click" />
+                            <Button x:Name="NodeX" Style="{StaticResource StageNodeButtonStyle}" Content="X" Width="58" Height="58" Canvas.Left="704" Canvas.Top="202" Tag="X|Button|X 键" Click="StageNode_Click" />
+                            <Button x:Name="NodeB" Style="{StaticResource StageNodeButtonStyle}" Content="B" Width="58" Height="58" Canvas.Left="816" Canvas.Top="202" Tag="B|Button|B 键" Click="StageNode_Click" />
+                            <Button x:Name="NodeA" Style="{StaticResource StageNodeButtonStyle}" Content="A" Width="58" Height="58" Canvas.Left="760" Canvas.Top="258" Tag="A|Button|A 键" Click="StageNode_Click" />
+                        </Canvas>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.25*" />
+                    <ColumnDefinition Width="0.75*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource MainSectionStyle}" Margin="0,0,18,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel>
+                            <TextBlock Text="动作编辑器" FontSize="24" FontWeight="SemiBold" />
+                            <TextBlock Text="当前选中的节点会在这里设置触发方式和映射结果。" Margin="0,8,0,0" Foreground="{StaticResource SubtleTextBrush}" />
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="1" Text="{Binding SelectedControlLabel}" Margin="0,18,0,0" FontSize="26" FontWeight="SemiBold" FontFamily="Segoe UI Variable Display" />
+
+                        <StackPanel Grid.Row="2" Margin="0,18,0,0">
+                            <TextBlock Text="按键方式" Foreground="{StaticResource SubtleTextBrush}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <Button x:Name="BehaviorSingleButton" Style="{StaticResource SegmentButtonStyle}" Content="单击" Tag="SinglePress" Click="BehaviorButton_Click" />
+                                <Button x:Name="BehaviorDoubleButton" Style="{StaticResource SegmentButtonStyle}" Content="双击" Tag="DoublePress" Click="BehaviorButton_Click" />
+                                <Button x:Name="BehaviorLongButton" Style="{StaticResource SegmentButtonStyle}" Content="长按" Tag="LongPress" Click="BehaviorButton_Click" />
+                                <Button x:Name="BehaviorHoldButton" Style="{StaticResource SegmentButtonStyle}" Content="持续" Tag="Hold" Click="BehaviorButton_Click" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Grid Grid.Row="3" Margin="0,22,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="规则名称" Foreground="{StaticResource SubtleTextBrush}" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding SelectedRule.DisplayName, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                <TextBlock Text="触发控件" Foreground="{StaticResource SubtleTextBrush}" Margin="0,0,0,6" />
+                                <ComboBox ItemsSource="{Binding AvailableControls}" SelectedItem="{Binding SelectedRule.Trigger.Control, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Margin="14,0,0,0">
+                                <TextBlock Text="触发模式" Foreground="{StaticResource SubtleTextBrush}" Margin="0,0,0,6" />
+                                <ComboBox ItemsSource="{Binding AvailableTriggerModes}" SelectedItem="{Binding SelectedRule.Trigger.ModeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Grid.Row="4" Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="动作类型" Foreground="{StaticResource SubtleTextBrush}" Margin="0,0,0,6" />
+                                <ComboBox ItemsSource="{Binding AvailableActionTypes}" SelectedItem="{Binding SelectedRule.Action.TypeText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                <TextBlock Text="动作参数" Foreground="{StaticResource SubtleTextBrush}" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding SelectedRule.Action.Parameter, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Margin="14,0,0,0">
+                                <TextBlock Text="阈值" Foreground="{StaticResource SubtleTextBrush}" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding SelectedRule.Trigger.Threshold, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="3" Margin="14,0,0,0">
+                                <TextBlock Text="灵敏度" Foreground="{StaticResource SubtleTextBrush}" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding SelectedRule.Action.Sensitivity, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Row="5" Background="#282A2F" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="18" Padding="18" Margin="0,20,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="输出预览" Foreground="{StaticResource SubtleTextBrush}" />
+                                    <TextBlock Text="{Binding SelectedRule.Action.Parameter}" Margin="0,10,0,0" FontSize="28" FontWeight="SemiBold" FontFamily="Segoe UI Variable Display" />
+                                    <TextBlock Text="{Binding SelectedRule.Action.TypeText}" Margin="0,8,0,0" Foreground="{StaticResource AccentCoolBrush}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="行为摘要" Foreground="{StaticResource SubtleTextBrush}" />
+                                    <TextBlock Text="{Binding SelectedRule.TriggerBehaviorText}" Margin="0,10,0,0" FontSize="24" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding SelectedRule.Trigger.Control}" Margin="0,8,0,0" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource MainSectionStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="已绑定规则" FontSize="24" FontWeight="SemiBold" />
+
+                        <ListBox x:Name="RuleList" Grid.Row="1" Margin="0,18,0,0" ItemsSource="{Binding Profile.Rules}" SelectedItem="{Binding SelectedRule, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:BindingRule}">
+                                    <Border Background="#303238" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="18" Padding="16">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding DisplayName}" FontSize="16" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Trigger.Control}" Margin="0,8,0,0" Foreground="{StaticResource SubtleTextBrush}" />
+                                                <TextBlock Text="{Binding Action.Parameter}" Margin="0,4,0,0" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                                <Border Background="#40314F" CornerRadius="12" Padding="10,6">
+                                                    <TextBlock Text="{Binding TriggerBehaviorText}" Foreground="{StaticResource AccentCoolBrush}" />
+                                                </Border>
+                                                <CheckBox Content="启用" IsChecked="{Binding IsEnabled, Mode=TwoWay}" Margin="0,12,0,0" HorizontalAlignment="Right" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Content="新增规则" Click="AddRule_Click" />
+                            <Button Content="删除选中" Click="DeleteSelectedRule_Click" Margin="12,0,0,0" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
+
