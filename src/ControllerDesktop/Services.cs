@@ -1,4 +1,4 @@
-﻿using ControllerDesktop.Interop;
+using ControllerDesktop.Interop;
 using ControllerDesktop.Models;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -86,9 +86,14 @@ public sealed class AutostartService
 
 public sealed class TrayService : IDisposable
 {
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool DestroyIcon(IntPtr hIcon);
+
     private readonly NotifyIcon _notifyIcon;
     private readonly ToolStripMenuItem _runtimeMenuItem;
     private readonly ToolStripMenuItem _autostartMenuItem;
+    private readonly Icon _trayIcon;
+    private readonly bool _ownsTrayIcon;
 
     public event Action? OpenEditorRequested;
     public event Action? ExitRequested;
@@ -110,15 +115,63 @@ public sealed class TrayService : IDisposable
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("退出", null, (_, _) => ExitRequested?.Invoke());
 
+        _trayIcon = LoadTrayIcon(out _ownsTrayIcon);
+
         _notifyIcon = new NotifyIcon
         {
             Visible = true,
-            Icon = SystemIcons.Application,
+            Icon = _trayIcon,
             Text = "手柄桌面映射",
             ContextMenuStrip = menu
         };
 
         _notifyIcon.DoubleClick += (_, _) => OpenEditorRequested?.Invoke();
+    }
+
+    private static Icon LoadTrayIcon(out bool ownsIcon)
+    {
+        try
+        {
+            var resource = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/icon.png"));
+            if (resource?.Stream is not null)
+            {
+                using var bitmap = new Bitmap(resource.Stream);
+                var iconHandle = bitmap.GetHicon();
+                try
+                {
+                    using var icon = Icon.FromHandle(iconHandle);
+                    ownsIcon = true;
+                    return (Icon)icon.Clone();
+                }
+                finally
+                {
+                    DestroyIcon(iconHandle);
+                }
+            }
+        }
+        catch
+        {
+        }
+
+        var processPath = Environment.ProcessPath;
+        if (!string.IsNullOrWhiteSpace(processPath) && File.Exists(processPath))
+        {
+            try
+            {
+                var icon = Icon.ExtractAssociatedIcon(processPath);
+                if (icon is not null)
+                {
+                    ownsIcon = true;
+                    return icon;
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        ownsIcon = false;
+        return SystemIcons.Application;
     }
 
     public void Update(RuntimeStatus status, bool runtimeEnabled, bool autostartEnabled, string editorUrl)
@@ -147,6 +200,10 @@ public sealed class TrayService : IDisposable
         _notifyIcon.Dispose();
         _runtimeMenuItem.Dispose();
         _autostartMenuItem.Dispose();
+        if (_ownsTrayIcon)
+        {
+            _trayIcon.Dispose();
+        }
     }
 }
 
@@ -1127,9 +1184,3 @@ public sealed class RuntimeCoordinator : IDisposable
         Stop();
     }
 }
-
-
-
-
-
-
